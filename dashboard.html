@@ -1,0 +1,87 @@
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Gestión de Usuarios</title>
+<style>
+body { font-family: Arial; background:#f4f7fa; padding:20px; }
+.container { max-width:800px; margin:auto; }
+h2 { text-align:center; }
+input { padding:8px; margin:5px; }
+button { padding:8px 12px; margin:5px; cursor:pointer; }
+table { width:100%; border-collapse: collapse; margin-top:20px; }
+th, td { border:1px solid #ccc; padding:10px; text-align:center; }
+th { background:#0072ff; color:white; }
+.error { color:red; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Administración de Usuarios</h2>
+
+  <input type="text" id="newUser" placeholder="Usuario">
+  <input type="password" id="newPass" placeholder="Contraseña">
+  <button onclick="addUser()">Agregar</button>
+  <div class="error" id="msg"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody id="userTable"></tbody>
+  </table>
+</div>
+<script>
+if (localStorage.getItem('auth') !== 'true') {
+  window.location.href = 'index.html';
+}
+
+let users = JSON.parse(localStorage.getItem('users')) || [];
+
+function render() {
+  const table = document.getElementById('userTable');
+  table.innerHTML = '';
+  users.forEach((u, i) => {
+    table.innerHTML += `
+      <tr>
+        <td>${u.user}</td>
+        <td><button onclick="deleteUser(${i})">Eliminar</button></td>
+      </tr>
+    `;
+  });
+}
+
+function addUser() {
+  const user = document.getElementById('newUser').value.trim();
+  const pass = document.getElementById('newPass').value.trim();
+  const msg = document.getElementById('msg');
+
+  if (!user || !pass) {
+    msg.textContent = 'Campos obligatorios';
+    return;
+  }
+
+  if (pass.length < 6) {
+    msg.textContent = 'La contraseña debe tener mínimo 6 caracteres';
+    return;
+  }
+
+  users.push({ user, pass });
+  localStorage.setItem('users', JSON.stringify(users));
+  msg.textContent = 'Usuario agregado';
+  render();
+}
+
+function deleteUser(index) {
+  users.splice(index, 1);
+  localStorage.setItem('users', JSON.stringify(users));
+  render();
+}
+
+render();
+</script> 
+</body>
+</html>
